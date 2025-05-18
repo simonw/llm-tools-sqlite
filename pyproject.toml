@@ -1,0 +1,28 @@
+[project]
+name = "llm-tools-sqlite"
+version = "0.1"
+description = "LLM tools for running queries against SQLite"
+readme = "README.md"
+authors = [{name = "Simon Willison"}]
+license = "Apache-2.0"
+classifiers = []
+requires-python = ">=3.9"
+dependencies = [
+    "llm>=0.26a0"
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project.urls]
+Homepage = "https://github.com/simonw/llm-tools-sqlite"
+Changelog = "https://github.com/simonw/llm-tools-sqlite/releases"
+Issues = "https://github.com/simonw/llm-tools-sqlite/issues"
+CI = "https://github.com/simonw/llm-tools-sqlite/actions"
+
+[project.entry-points.llm]
+llm_tools_sqlite = "llm_tools_sqlite"
+
+[project.optional-dependencies]
+test = ["pytest", "llm-echo>=0.3a1"]
