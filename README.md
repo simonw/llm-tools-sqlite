@@ -21,7 +21,10 @@ To use this with the [LLM command-line tool](https://llm.datasette.io/en/stable/
 llm -T 'SQLite("content.db")' \
   "Count rows in the most interesting looking table" --td
 ```
-
+Or use `llm chat` to chat with your database over multiple rounds:
+```bash
+llm chat -T 'SQLite("content.db")' 
+```
 This tool currently only supports read-only queries. Attempts to write to the database will fail with an error.
 
 With the [LLM Python API](https://llm.datasette.io/en/stable/python-api.html):
