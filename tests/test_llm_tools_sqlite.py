@@ -1,6 +1,6 @@
 import llm
 import json
-from llm_tools_sqlite import sqlite_query, sqlite_list_databases, sqlite_schema
+from llm_tools_sqlite import SQLite
 import sqlite_utils
 
 
@@ -21,41 +21,37 @@ def test_tool(monkeypatch, tmpdir):
         json.dumps(
             {
                 "tool_calls": [
-                    {"name": "sqlite_list_databases", "arguments": {}},
                     {
-                        "name": "sqlite_query",
+                        "name": "SQLite_query",
                         "arguments": {
-                            "database_name": "demo",
                             "sql": "SELECT count(*) n FROM pelicans",
                         },
                     },
-                    {"name": "sqlite_schema", "arguments": {"database_name": "demo"}},
+                    {"name": "SQLite_schema", "arguments": {}},
                     {
-                        "name": "sqlite_query",
+                        "name": "SQLite_query",
                         "arguments": {
-                            "database_name": "demo",
                             "sql": "drop table pelicans",
                         },
                     },
                 ]
             }
         ),
-        tools=[sqlite_query, sqlite_list_databases, sqlite_schema],
+        tools=[SQLite("demo.db")],
     )
     responses = list(chain_response.responses())
     assert len(responses) == 2
     text = responses[-1].text()
     info = json.loads(text)
     assert info["tool_results"] == [
-        {"name": "sqlite_list_databases", "output": '["demo"]', "tool_call_id": None},
-        {"name": "sqlite_query", "output": '[{"n": 3}]', "tool_call_id": None},
+        {"name": "SQLite_query", "output": '[{"n": 3}]', "tool_call_id": None},
         {
-            "name": "sqlite_schema",
+            "name": "SQLite_schema",
             "output": "CREATE TABLE [pelicans] (\n   [name] TEXT\n);",
             "tool_call_id": None,
         },
         {
-            "name": "sqlite_query",
+            "name": "SQLite_query",
             "output": "Error: attempt to write a readonly database",
             "tool_call_id": None,
         },

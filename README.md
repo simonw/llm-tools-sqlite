@@ -18,36 +18,27 @@ llm install llm-tools-sqlite
 To use this with the [LLM command-line tool](https://llm.datasette.io/en/stable/usage.html):
 
 ```bash
-llm \
-  -T sqlite_query -T sqlite_list_databases -T sqlite_schema \
+llm -T 'SQLite("content.db")' \
   "Count rows in the most interesting looking table" --td
 ```
 
-You need to pass all three, as the `sqlite_query` and `sqlite_schema` tools need to run `sqlite_list_databases` first to determine which database to run against.
-
-This tool will make all `*.db` files in the current directory available to the LLM. You may need to change to the correct directory first before running the command.
-
-These tools currently only support read-only queries. Attempts to write to the database will fail with an error.
-
-<!-- 
-
-Commented out for the moment because it's not nice to have to change working directory
-before running Python code.
+This tool currently only supports read-only queries. Attempts to write to the database will fail with an error.
 
 With the [LLM Python API](https://llm.datasette.io/en/stable/python-api.html):
 
 ```python
 import llm
-from llm_tools_sqlite import sqlite_query
+from llm_tools_sqlite import SQLite
 
 model = llm.get_model("gpt-4.1-mini")
 
 result = model.chain(
-    "Example prompt goes here",
-    tools=[sqlite_query]
-).text()
+    "Show me the three most interesting looking tables",
+    tools=[SQLite("content.db")]
+)
+for s in result:
+    print(s, end="", flush=True)
 ```
--->
 
 ## Development
 
