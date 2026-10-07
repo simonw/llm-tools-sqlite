@@ -43,16 +43,27 @@ def test_tool(monkeypatch, tmpdir):
     assert len(responses) == 2
     text = responses[-1].text()
     info = json.loads(text)
-    assert info["tool_results"] == [
-        {"name": "SQLite_query", "output": '[{"n": 3}]', "tool_call_id": None},
-        {
-            "name": "SQLite_schema",
-            "output": "CREATE TABLE [pelicans] (\n   [name] TEXT\n);",
-            "tool_call_id": None,
-        },
-        {
-            "name": "SQLite_query",
-            "output": "Error: attempt to write a readonly database",
-            "tool_call_id": None,
-        },
+    tool_results = info["tool_results"]
+    # tool_call_id is assigned by the model/echo plugin, not by this tool, and its
+    # value differs across llm versions (older ones pass None). Assert the shape
+    # rather than a fixed value so the test does not break on a dependency bump.
+    assert [r["name"] for r in tool_results] == [
+        "SQLite_query",
+        "SQLite_schema",
+        "SQLite_query",
     ]
+    assert tool_results[0]["output"] == '[{"n": 3}]'
+    # The schema rendering quotes identifiers differently across sqlite-utils
+    # versions (brackets vs double quotes), so assert the content, not the exact
+    # string.
+    schema = tool_results[1]["output"]
+    assert schema.startswith("CREATE TABLE")
+    assert "pelicans" in schema
+    assert "name" in schema
+    assert "TEXT" in schema
+    assert tool_results[2]["output"] == "Error: attempt to write a readonly database"
+    for result in tool_results:
+        assert "tool_call_id" in result
+        assert result["tool_call_id"] is None or isinstance(
+            result["tool_call_id"], str
+        )
